@@ -6,7 +6,7 @@
   <title>Dīvanova 2026</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Permanent+Marker&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -63,15 +63,17 @@
 
     h1 {
       font-size: 36px;
-      font-weight: 800;
+      font-weight: 400;
       color: var(--accent);
       letter-spacing: -0.5px;
+      font-family: 'Permanent Marker', cursive;
     }
 
     .subtitle {
       color: var(--grey-600);
-      font-size: 15px;
+      font-size: 1.2rem;
       margin-bottom: 16px;
+      line-height: 1.4;
     }
 
     .stats {
@@ -262,9 +264,18 @@
       padding: 40px 20px;
     }
 
-    .success-emoji {
-      font-size: 64px;
-      margin-bottom: 16px;
+    .success-gif {
+      width: 200px;
+      height: 200px;
+      margin: 0 auto 24px;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .success-gif img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .success-title {
@@ -707,11 +718,9 @@
           <div class="container">
             <div class="header">
               <div class="title-wrapper">
-                <span style="font-size: 48px;">🎵</span>
                 <h1>Dīvanova 2026</h1>
-                <span style="font-size: 48px;">🎤</span>
               </div>
-              <div class="subtitle">Izvēlies savu favorītu • Novērtē katru dziesmu ar pozīciju</div>
+              <div class="subtitle">Dīvanekspert, šis ir laiks tev! Kuram ir jābrauc uz Eirovīziju Vīnē?</div>
               <div class="stats">
                 <div class="stat-item">
                   <span style="font-size: 20px;">👥</span>
@@ -783,9 +792,11 @@
             ` : `
               <div class="card">
                 <div class="success-message">
-                  <div class="success-emoji">🎉</div>
-                  <h3 class="success-title">Paldies, ${this.voterName}!</h3>
-                  <p class="success-text">Tavas balsis ir veiksmīgi reģistrētas.</p>
+                  <div class="success-gif">
+                    <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmh0c2dqOHFvb254bHBueWM3Mmo4aGxyYndnNjh0aGwzOTAzbWR3MyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/V6SOZxclu5WidK6LGk/giphy.gif" alt="Thank you">
+                  </div>
+                  <h3 class="success-title">Tava balss ir pieņemta!</h3>
+                  <p class="success-text">Paldies par piedalīšanos!</p>
                   <button id="resetButton" class="view-results-button">
                     Balsot vēlreiz (ar citu vārdu)
                   </button>
