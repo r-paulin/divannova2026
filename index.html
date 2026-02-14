@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Dīvanova 2026</title>
+  <meta property="og:image" content="https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3eXpsMGdiNTh3NGR4aHUwdG8xNTR5Mmh2ajB3dmx6MnNjMGI5czJ1YSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/idkUxGEH6Er11AyN3x/giphy.gif" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Permanent+Marker&display=swap" rel="stylesheet">
@@ -55,18 +56,24 @@
 
     .title-wrapper {
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 12px;
+      gap: 8px;
       margin-bottom: 12px;
     }
 
+    .title-emoji {
+      width: 48px;
+      height: 48px;
+    }
+
     h1 {
-      font-size: 36px;
-      font-weight: 400;
+      font-size: 2rem;
+      font-weight: 700;
       color: var(--accent);
-      letter-spacing: -0.5px;
-      font-family: 'Permanent Marker', cursive;
+      letter-spacing: -0.3px;
+      font-family: 'Manrope', sans-serif;
     }
 
     .subtitle {
@@ -588,6 +595,19 @@
         });
       }
 
+      handleNameInput(value) {
+        this.voterName = value;
+        // Only update the submit button state without full re-render
+        const submitButton = document.getElementById('submitButton');
+        if (submitButton) {
+          const allSelected = songs.every(song => 
+            this.positions[song.id] !== null && 
+            this.positions[song.id] !== undefined
+          );
+          submitButton.disabled = !value.trim() || !allSelected;
+        }
+      }
+
       handlePositionChange(songId, value) {
         this.positions[songId] = value === '' ? null : parseInt(value);
         this.render();
@@ -718,6 +738,10 @@
           <div class="container">
             <div class="header">
               <div class="title-wrapper">
+                <picture>
+                  <source srcset="https://fonts.gstatic.com/s/e/notoemoji/latest/1f525/512.webp" type="image/webp">
+                  <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f525/512.gif" alt="🔥" class="title-emoji">
+                </picture>
                 <h1>Dīvanova 2026</h1>
               </div>
               <div class="subtitle">Dīvanekspert, šis ir laiks tev! Kuram ir jābrauc uz Eirovīziju Vīnē?</div>
@@ -878,8 +902,7 @@
         const nameInput = document.getElementById('voterNameInput');
         if (nameInput) {
           nameInput.addEventListener('input', (e) => {
-            this.voterName = e.target.value;
-            this.render();
+            this.handleNameInput(e.target.value);
           });
         }
 
