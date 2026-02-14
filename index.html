@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Dīvanova 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 500;
+      background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+      min-height: 100vh;
+      color: #2a2a2a;
+      overflow-x: hidden;
+    }
+
+    :root {
+      --accent: #521945;
+      --accent-light: #7a2d66;
+      --accent-dark: #3d1333;
+      --grey-50: #fafafa;
+      --grey-100: #f5f5f5;
+      --grey-200: #eeeeee;
+      --grey-300: #e0e0e0;
+      --grey-400: #bdbdbd;
+      --grey-500: #9e9e9e;
+      --grey-600: #757575;
+      --grey-700: #616161;
+      --grey-800: #424242;
+      --grey-900: #212121;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 16px;
+      padding-bottom: 80px;
+    }
+
+    .header {
+      text-align: center;
+      padding: 24px 0 32px;
+      position: relative;
+    }
+
+    .title-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .emoji-icon {
+      width: 48px;
+      height: 48px;
+      display: inline-block;
+    }
+
+    h1 {
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      color: var(--grey-600);
+      font-size: 15px;
+      margin-bottom: 16px;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      font-size: 14px;
+      color: var(--grey-700);
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--grey-900);
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      color: var(--grey-700);
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid var(--grey-300);
+      border-radius: 12px;
+      font-size: 16px;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(82, 25, 69, 0.1);
+    }
+
+    .song-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .song-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      background: var(--grey-50);
+      border-radius: 12px;
+      border: 2px solid transparent;
+      transition: all 0.2s ease;
+    }
+
+    .song-item.duplicate {
+      border-color: #ef4444;
+      background: #fef2f2;
+    }
+
+    .song-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .song-name {
+      font-weight: 600;
+      color: var(--grey-900);
+      font-size: 15px;
+      margin-bottom: 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .artist-name {
+      font-size: 13px;
+      color: var(--grey-600);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .position-select-wrapper {
+      position: relative;
+      margin-left: 12px;
+    }
+
+    .position-button {
+      padding: 10px 18px;
+      border-radius: 10px;
+      border: 2px solid var(--grey-300);
+      background: white;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--grey-600);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-width: 120px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .position-button.selected {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .position-button.duplicate {
+      border-color: #ef4444;
+      background: #fef2f2;
+      color: #dc2626;
+    }
+
+    .position-button.selected.duplicate {
+      background: #ef4444;
+      border-color: #dc2626;
+      color: white;
+    }
+
+    select {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .submit-button {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(82, 25, 69, 0.3);
+    }
+
+    .submit-button:active {
+      transform: scale(0.98);
+    }
+
+    .submit-button:disabled {
+      background: var(--grey-300);
+      color: var(--grey-500);
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .success-message {
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .success-emoji {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+
+    .success-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--grey-900);
+      margin-bottom: 8px;
+    }
+
+    .success-text {
+      color: var(--grey-600);
+      margin-bottom: 24px;
+      font-size: 15px;
+    }
+
+    .reset-button {
+      padding: 12px 24px;
+      background: white;
+      color: var(--accent);
+      border: 2px solid var(--accent);
+      border-radius: 10px;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .reset-button:active {
+      transform: scale(0.95);
+    }
+
+    .ranking-item {
+      background: white;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      overflow: hidden;
+      border: 2px solid var(--grey-200);
+      transition: all 0.2s ease;
+    }
+
+    .ranking-item.top-1 {
+      border-color: #fbbf24;
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    }
+
+    .ranking-item.top-2 {
+      border-color: #d1d5db;
+      background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+    }
+
+    .ranking-item.top-3 {
+      border-color: #fb923c;
+      background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+    }
+
+    .ranking-header {
+      display: flex;
+      align-items: center;
+      padding: 16px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .rank-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 18px;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+
+    .top-1 .rank-badge {
+      background: #fbbf24;
+      color: #78350f;
+    }
+
+    .top-2 .rank-badge {
+      background: #d1d5db;
+      color: #374151;
+    }
+
+    .top-3 .rank-badge {
+      background: #fb923c;
+      color: #7c2d12;
+    }
+
+    .ranking-item:not(.top-1):not(.top-2):not(.top-3) .rank-badge {
+      background: var(--grey-200);
+      color: var(--grey-600);
+    }
+
+    .ranking-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .ranking-song {
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--grey-900);
+      margin-bottom: 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .ranking-artist {
+      font-size: 13px;
+      color: var(--grey-600);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .ranking-score {
+      text-align: right;
+      margin-left: 12px;
+      flex-shrink: 0;
+    }
+
+    .score-value {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+
+    .score-label {
+      font-size: 11px;
+      color: var(--grey-500);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .expand-icon {
+      margin-left: 8px;
+      color: var(--grey-400);
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .ranking-item.expanded .expand-icon {
+      transform: rotate(180deg);
+    }
+
+    .ranking-details {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .ranking-item.expanded .ranking-details {
+      max-height: 500px;
+    }
+
+    .details-content {
+      padding: 0 16px 16px;
+      border-top: 1px solid var(--grey-200);
+      margin-top: 8px;
+      padding-top: 16px;
+    }
+
+    .details-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--grey-700);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .vote-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .vote-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .voter-name {
+      color: var(--grey-700);
+      font-weight: 500;
+    }
+
+    .voter-position {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--grey-500);
+    }
+
+    .empty-emoji {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 20px;
+      color: var(--grey-500);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card, .ranking-item {
+      animation: fadeIn 0.4s ease;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--grey-500);
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    const songs = [
+      { id: 1, artist: 'De Mantra', name: 'Let Them' },
+      { id: 2, artist: 'ELPO', name: 'Blakus' },
+      { id: 3, artist: 'Krisy', name: 'Take It' },
+      { id: 4, artist: 'Kautkaili', name: 'Te un tagad' },
+      { id: 5, artist: 'LEGZDINA', name: 'Ribbon' },
+      { id: 6, artist: 'Emilija', name: 'All We Ever Had' },
+      { id: 7, artist: 'Atvara', name: 'Ēnā' },
+      { id: 8, artist: 'Robert Ox', name: 'Ravin\' at the Taj Mahal' },
+      { id: 9, artist: 'TIKASHA SAKAMA', name: '#010126 Coda' },
+      { id: 10, artist: 'Miks Galvanovskis', name: 'Cruel Angel' }
+    ];
+
+    function App() {
+      const [voterName, setVoterName] = useState('');
+      const [positions, setPositions] = useState({});
+      const [hasVoted, setHasVoted] = useState(false);
+      const [allVotes, setAllVotes] = useState({});
+      const [loading, setLoading] = useState(true);
+      const [expandedRanks, setExpandedRanks] = useState(new Set());
+
+      useEffect(() => {
+        loadAllVotes();
+      }, []);
+
+      const loadAllVotes = () => {
+        try {
+          setLoading(true);
+          const votesData = {};
+          
+          // Load all votes from localStorage
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('vote:')) {
+              try {
+                const value = localStorage.getItem(key);
+                if (value) {
+                  const voteData = JSON.parse(value);
+                  votesData[key] = voteData;
+                }
+              } catch (err) {
+                console.log(`Key ${key} not found or invalid`);
+              }
+            }
+          }
+          
+          setAllVotes(votesData);
+        } catch (error) {
+          console.log('No votes found yet');
+          setAllVotes({});
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      const handlePositionChange = (songId, position) => {
+        setPositions(prev => ({
+          ...prev,
+          [songId]: position === '' ? null : parseInt(position)
+        }));
+      };
+
+      const getDuplicatePositions = () => {
+        const positionMap = {};
+        Object.entries(positions).forEach(([songId, position]) => {
+          if (position !== null) {
+            if (!positionMap[position]) {
+              positionMap[position] = [];
+            }
+            positionMap[position].push(parseInt(songId));
+          }
+        });
+
+        const duplicates = new Set();
+        Object.entries(positionMap).forEach(([position, songIds]) => {
+          if (songIds.length > 1) {
+            songIds.forEach(id => duplicates.add(id));
+          }
+        });
+
+        return duplicates;
+      };
+
+      const duplicatePositions = getDuplicatePositions();
+
+      const submitVotes = () => {
+        if (!voterName.trim()) {
+          alert('Lūdzu, ievadiet savu vārdu');
+          return;
+        }
+
+        const allSelected = songs.every(song => positions[song.id] !== null && positions[song.id] !== undefined);
+        if (!allSelected) {
+          alert('Lūdzu, izvēlieties pozīciju visām dziesmām (1-10)');
+          return;
+        }
+
+        try {
+          const voteKey = `vote:${Date.now()}_${voterName.replace(/\s/g, '_')}`;
+          const voteData = {
+            voterName,
+            positions,
+            timestamp: new Date().toISOString()
+          };
+
+          localStorage.setItem(voteKey, JSON.stringify(voteData));
+          setHasVoted(true);
+          loadAllVotes();
+        } catch (error) {
+          console.error('Error submitting vote:', error);
+          alert('Neizdevās iesniegt balsis. Lūdzu, mēģiniet vēlreiz.');
+        }
+      };
+
+      const calculateRankings = () => {
+        const totals = {};
+        const voteDetails = {};
+        
+        songs.forEach(s => {
+          totals[s.id] = 0;
+          voteDetails[s.id] = [];
+        });
+
+        Object.values(allVotes).forEach(voteData => {
+          Object.entries(voteData.positions).forEach(([id, position]) => {
+            totals[id] = (totals[id] || 0) + position;
+            voteDetails[id].push({
+              voterName: voteData.voterName,
+              position: position
+            });
+          });
+        });
+
+        const rankings = songs.map(s => ({
+          ...s,
+          totalScore: totals[s.id] || 0,
+          voteCount: voteDetails[s.id].length,
+          voteDetails: voteDetails[s.id]
+        }));
+
+        return rankings.sort((a, b) => {
+          if (a.voteCount === 0 && b.voteCount === 0) return 0;
+          if (a.voteCount === 0) return 1;
+          if (b.voteCount === 0) return -1;
+          return a.totalScore - b.totalScore;
+        });
+      };
+
+      const rankings = calculateRankings();
+      const totalVoters = Object.keys(allVotes).length;
+
+      const toggleExpand = (songId) => {
+        setExpandedRanks(prev => {
+          const newSet = new Set(prev);
+          if (newSet.has(songId)) {
+            newSet.delete(songId);
+          } else {
+            newSet.add(songId);
+          }
+          return newSet;
+        });
+      };
+
+      if (loading) {
+        return (
+          <div className="loading">
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>⏳</div>
+            <div>Ielādē...</div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="container">
+          <div className="header">
+            <div className="title-wrapper">
+              <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f3b5/512.gif" alt="🎵" className="emoji-icon" />
+              <h1>Dīvanova 2026</h1>
+              <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f3a4/512.gif" alt="🎤" className="emoji-icon" />
+            </div>
+            <div className="subtitle">Izvēlies savu favorītu • Novērtē katru dziesmu ar pozīciju</div>
+            <div className="stats">
+              <div className="stat-item">
+                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f465/512.gif" alt="👥" width="20" height="20" />
+                <span>{totalVoters} balsos</span>
+              </div>
+              <div className="stat-item">
+                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4ca/512.gif" alt="📊" width="20" height="20" />
+                <span>Tiešraides rezultāti</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="card-header">
+              <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/2b50/512.gif" alt="⭐" width="24" height="24" />
+              <h2 className="card-title">Nodod savu balsi</h2>
+            </div>
+
+            {!hasVoted ? (
+              <div>
+                <div className="input-group">
+                  <label>Tavs vārds</label>
+                  <input
+                    type="text"
+                    value={voterName}
+                    onChange={(e) => setVoterName(e.target.value)}
+                    placeholder="Ievadi savu vārdu"
+                  />
+                </div>
+
+                <div className="song-list">
+                  {songs.map(song => {
+                    const isDuplicate = duplicatePositions.has(song.id);
+                    const selectedPosition = positions[song.id];
+                    
+                    return (
+                      <div key={song.id} className={`song-item ${isDuplicate ? 'duplicate' : ''}`}>
+                        <div className="song-info">
+                          <div className="song-name">{song.name}</div>
+                          <div className="artist-name">{song.artist}</div>
+                        </div>
+                        <div className="position-select-wrapper">
+                          <button
+                            className={`position-button ${selectedPosition ? 'selected' : ''} ${isDuplicate ? 'duplicate' : ''}`}
+                            onClick={() => {
+                              const select = document.getElementById(`select-${song.id}`);
+                              select.click();
+                            }}
+                          >
+                            {selectedPosition ? `${selectedPosition}. vieta` : 'Izvēlies pozīciju'}
+                          </button>
+                          <select
+                            id={`select-${song.id}`}
+                            value={selectedPosition || ''}
+                            onChange={(e) => handlePositionChange(song.id, e.target.value)}
+                          >
+                            <option value="">-</option>
+                            {[...Array(10)].map((_, i) => (
+                              <option key={i + 1} value={i + 1}>
+                                {i + 1}. vieta
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <button
+                  onClick={submitVotes}
+                  className="submit-button"
+                  disabled={!voterName.trim() || songs.some(s => !positions[s.id])}
+                >
+                  Iesniegt visas balsis
+                </button>
+              </div>
+            ) : (
+              <div className="success-message">
+                <div className="success-emoji">
+                  <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f389/512.gif" alt="🎉" width="80" height="80" />
+                </div>
+                <h3 className="success-title">Paldies, {voterName}!</h3>
+                <p className="success-text">Tavas balsis ir veiksmīgi reģistrētas.</p>
+                <button
+                  onClick={() => {
+                    setHasVoted(false);
+                    setVoterName('');
+                    setPositions({});
+                  }}
+                  className="reset-button"
+                >
+                  Balsot vēlreiz (ar citu vārdu)
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="card">
+            <div className="card-header">
+              <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4ca/512.gif" alt="📊" width="24" height="24" />
+              <h2 className="card-title">Tiešraides rezultāti</h2>
+            </div>
+
+            {totalVoters === 0 ? (
+              <div className="empty-state">
+                <div className="empty-emoji">
+                  <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f914/512.gif" alt="🤔" width="64" height="64" />
+                </div>
+                <p style={{ fontSize: '16px', marginBottom: '8px', fontWeight: 600 }}>Vēl nav balsu!</p>
+                <p style={{ fontSize: '14px' }}>Esi pirmais, kas balso</p>
+              </div>
+            ) : (
+              <div>
+                {rankings.map((song, index) => {
+                  const rankClass = index === 0 ? 'top-1' : index === 1 ? 'top-2' : index === 2 ? 'top-3' : '';
+                  const isExpanded = expandedRanks.has(song.id);
+                  
+                  return (
+                    <div key={song.id} className={`ranking-item ${rankClass} ${isExpanded ? 'expanded' : ''}`}>
+                      <div className="ranking-header" onClick={() => toggleExpand(song.id)}>
+                        <div className="rank-badge">{index + 1}</div>
+                        <div className="ranking-info">
+                          <div className="ranking-song">{song.name}</div>
+                          <div className="ranking-artist">{song.artist}</div>
+                        </div>
+                        <div className="ranking-score">
+                          <div className="score-value">{song.totalScore}</div>
+                          <div className="score-label">{song.voteCount} balsis</div>
+                        </div>
+                        <div className="expand-icon">
+                          {song.voteCount > 0 ? '▼' : ''}
+                        </div>
+                      </div>
+                      
+                      {song.voteCount > 0 && (
+                        <div className="ranking-details">
+                          <div className="details-content">
+                            <div className="details-title">Detalizēti rezultāti</div>
+                            <div className="vote-list">
+                              {song.voteDetails
+                                .sort((a, b) => a.position - b.position)
+                                .map((vote, idx) => (
+                                  <div key={idx} className="vote-item">
+                                    <span className="voter-name">{vote.voterName}</span>
+                                    <span className="voter-position">{vote.position}. vieta</span>
+                                  </div>
+                                ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          <div className="footer">
+            Visas balsis ir redzamas visiem<br />
+            Balsošana ir anonīma
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>
