@@ -7,9 +7,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
     * {
       margin: 0;
@@ -62,12 +59,6 @@
       justify-content: center;
       gap: 12px;
       margin-bottom: 12px;
-    }
-
-    .emoji-icon {
-      width: 48px;
-      height: 48px;
-      display: inline-block;
     }
 
     h1 {
@@ -196,9 +187,10 @@
     .position-select-wrapper {
       position: relative;
       margin-left: 12px;
+      flex-shrink: 0;
     }
 
-    .position-button {
+    select.position-select {
       padding: 10px 18px;
       border-radius: 10px;
       border: 2px solid var(--grey-300);
@@ -210,32 +202,33 @@
       cursor: pointer;
       transition: all 0.2s ease;
       min-width: 120px;
-      text-align: center;
-      white-space: nowrap;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23757575' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 36px;
     }
 
-    .position-button.selected {
-      background: var(--accent);
+    select.position-select.selected {
+      background-color: var(--accent);
       border-color: var(--accent);
       color: white;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='white' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
     }
 
-    .position-button.duplicate {
+    select.position-select.duplicate {
       border-color: #ef4444;
-      background: #fef2f2;
+      background-color: #fef2f2;
       color: #dc2626;
     }
 
-    .position-button.selected.duplicate {
-      background: #ef4444;
+    select.position-select.selected.duplicate {
+      background-color: #ef4444;
       border-color: #dc2626;
       color: white;
-    }
-
-    select {
-      position: absolute;
-      opacity: 0;
-      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='white' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
     }
 
     .submit-button {
@@ -287,20 +280,21 @@
       font-size: 15px;
     }
 
-    .reset-button {
-      padding: 12px 24px;
-      background: white;
-      color: var(--accent);
-      border: 2px solid var(--accent);
+    .view-results-button {
+      padding: 14px 32px;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+      color: white;
+      border: none;
       border-radius: 10px;
       font-family: 'Manrope', sans-serif;
-      font-weight: 600;
-      font-size: 14px;
+      font-weight: 700;
+      font-size: 15px;
       cursor: pointer;
       transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(82, 25, 69, 0.3);
     }
 
-    .reset-button:active {
+    .view-results-button:active {
       transform: scale(0.95);
     }
 
@@ -521,8 +515,25 @@
 <body>
   <div id="root"></div>
 
-  <script type="text/babel">
-    const { useState, useEffect } = React;
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+  <script>
+    // Firebase Configuration - REPLACE WITH YOUR CONFIG
+    const firebaseConfig = {
+      apiKey: "AIzaSyBJJpdPw87kUMFD7GReUgOY8B0Hyg34i-g",
+  authDomain: "divannova2026.firebaseapp.com",
+  databaseURL: "https://divannova2026-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "divannova2026",
+  storageBucket: "divannova2026.firebasestorage.app",
+  messagingSenderId: "871553419839",
+  appId: "1:871553419839:web:4e8e4433d26a1127c6c68a"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
 
     const songs = [
       { id: 1, artist: 'De Mantra', name: 'Let Them' },
@@ -537,59 +548,44 @@
       { id: 10, artist: 'Miks Galvanovskis', name: 'Cruel Angel' }
     ];
 
-    function App() {
-      const [voterName, setVoterName] = useState('');
-      const [positions, setPositions] = useState({});
-      const [hasVoted, setHasVoted] = useState(false);
-      const [allVotes, setAllVotes] = useState({});
-      const [loading, setLoading] = useState(true);
-      const [expandedRanks, setExpandedRanks] = useState(new Set());
+    class App {
+      constructor() {
+        this.voterName = '';
+        this.positions = {};
+        this.allVotes = {};
+        this.loading = true;
+        this.expandedRanks = new Set();
+        this.currentView = 'voting'; // 'voting' or 'results'
+        
+        this.init();
+      }
 
-      useEffect(() => {
-        loadAllVotes();
-      }, []);
+      init() {
+        this.loadAllVotes();
+        this.render();
+      }
 
-      const loadAllVotes = () => {
-        try {
-          setLoading(true);
-          const votesData = {};
-          
-          // Load all votes from localStorage
-          for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && key.startsWith('vote:')) {
-              try {
-                const value = localStorage.getItem(key);
-                if (value) {
-                  const voteData = JSON.parse(value);
-                  votesData[key] = voteData;
-                }
-              } catch (err) {
-                console.log(`Key ${key} not found or invalid`);
-              }
-            }
-          }
-          
-          setAllVotes(votesData);
-        } catch (error) {
-          console.log('No votes found yet');
-          setAllVotes({});
-        } finally {
-          setLoading(false);
-        }
-      };
+      loadAllVotes() {
+        this.loading = true;
+        this.render();
 
-      const handlePositionChange = (songId, position) => {
-        setPositions(prev => ({
-          ...prev,
-          [songId]: position === '' ? null : parseInt(position)
-        }));
-      };
+        database.ref('votes').on('value', (snapshot) => {
+          const data = snapshot.val();
+          this.allVotes = data || {};
+          this.loading = false;
+          this.render();
+        });
+      }
 
-      const getDuplicatePositions = () => {
+      handlePositionChange(songId, value) {
+        this.positions[songId] = value === '' ? null : parseInt(value);
+        this.render();
+      }
+
+      getDuplicatePositions() {
         const positionMap = {};
-        Object.entries(positions).forEach(([songId, position]) => {
-          if (position !== null) {
+        Object.entries(this.positions).forEach(([songId, position]) => {
+          if (position !== null && position !== undefined) {
             if (!positionMap[position]) {
               positionMap[position] = [];
             }
@@ -605,40 +601,43 @@
         });
 
         return duplicates;
-      };
+      }
 
-      const duplicatePositions = getDuplicatePositions();
-
-      const submitVotes = () => {
-        if (!voterName.trim()) {
+      submitVotes() {
+        if (!this.voterName.trim()) {
           alert('Lūdzu, ievadiet savu vārdu');
           return;
         }
 
-        const allSelected = songs.every(song => positions[song.id] !== null && positions[song.id] !== undefined);
+        const allSelected = songs.every(song => 
+          this.positions[song.id] !== null && 
+          this.positions[song.id] !== undefined
+        );
+        
         if (!allSelected) {
           alert('Lūdzu, izvēlieties pozīciju visām dziesmām (1-10)');
           return;
         }
 
-        try {
-          const voteKey = `vote:${Date.now()}_${voterName.replace(/\s/g, '_')}`;
-          const voteData = {
-            voterName,
-            positions,
-            timestamp: new Date().toISOString()
-          };
+        const voteKey = `vote_${Date.now()}_${this.voterName.replace(/\s/g, '_')}`;
+        const voteData = {
+          voterName: this.voterName,
+          positions: this.positions,
+          timestamp: new Date().toISOString()
+        };
 
-          localStorage.setItem(voteKey, JSON.stringify(voteData));
-          setHasVoted(true);
-          loadAllVotes();
-        } catch (error) {
-          console.error('Error submitting vote:', error);
-          alert('Neizdevās iesniegt balsis. Lūdzu, mēģiniet vēlreiz.');
-        }
-      };
+        database.ref('votes/' + voteKey).set(voteData)
+          .then(() => {
+            this.currentView = 'results';
+            this.render();
+          })
+          .catch((error) => {
+            console.error('Error submitting vote:', error);
+            alert('Neizdevās iesniegt balsis. Lūdzu, mēģiniet vēlreiz.');
+          });
+      }
 
-      const calculateRankings = () => {
+      calculateRankings() {
         const totals = {};
         const voteDetails = {};
         
@@ -647,7 +646,7 @@
           voteDetails[s.id] = [];
         });
 
-        Object.values(allVotes).forEach(voteData => {
+        Object.values(this.allVotes).forEach(voteData => {
           Object.entries(voteData.positions).forEach(([id, position]) => {
             totals[id] = (totals[id] || 0) + position;
             voteDetails[id].push({
@@ -670,209 +669,253 @@
           if (b.voteCount === 0) return -1;
           return a.totalScore - b.totalScore;
         });
-      };
-
-      const rankings = calculateRankings();
-      const totalVoters = Object.keys(allVotes).length;
-
-      const toggleExpand = (songId) => {
-        setExpandedRanks(prev => {
-          const newSet = new Set(prev);
-          if (newSet.has(songId)) {
-            newSet.delete(songId);
-          } else {
-            newSet.add(songId);
-          }
-          return newSet;
-        });
-      };
-
-      if (loading) {
-        return (
-          <div className="loading">
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>⏳</div>
-            <div>Ielādē...</div>
-          </div>
-        );
       }
 
-      return (
-        <div className="container">
-          <div className="header">
-            <div className="title-wrapper">
-              <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f3b5/512.gif" alt="🎵" className="emoji-icon" />
-              <h1>Dīvanova 2026</h1>
-              <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f3a4/512.gif" alt="🎤" className="emoji-icon" />
+      toggleExpand(songId) {
+        if (this.expandedRanks.has(songId)) {
+          this.expandedRanks.delete(songId);
+        } else {
+          this.expandedRanks.add(songId);
+        }
+        this.render();
+      }
+
+      resetVote() {
+        this.voterName = '';
+        this.positions = {};
+        this.currentView = 'voting';
+        this.render();
+      }
+
+      render() {
+        const root = document.getElementById('root');
+        const rankings = this.calculateRankings();
+        const totalVoters = Object.keys(this.allVotes).length;
+        const duplicatePositions = this.getDuplicatePositions();
+
+        if (this.loading) {
+          root.innerHTML = `
+            <div class="loading">
+              <div style="font-size: 48px; margin-bottom: 16px;">⏳</div>
+              <div>Ielādē...</div>
             </div>
-            <div className="subtitle">Izvēlies savu favorītu • Novērtē katru dziesmu ar pozīciju</div>
-            <div className="stats">
-              <div className="stat-item">
-                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f465/512.gif" alt="👥" width="20" height="20" />
-                <span>{totalVoters} balsos</span>
-              </div>
-              <div className="stat-item">
-                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4ca/512.gif" alt="📊" width="20" height="20" />
-                <span>Tiešraides rezultāti</span>
-              </div>
-            </div>
-          </div>
+          `;
+          return;
+        }
 
-          <div className="card">
-            <div className="card-header">
-              <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/2b50/512.gif" alt="⭐" width="24" height="24" />
-              <h2 className="card-title">Nodod savu balsi</h2>
-            </div>
-
-            {!hasVoted ? (
-              <div>
-                <div className="input-group">
-                  <label>Tavs vārds</label>
-                  <input
-                    type="text"
-                    value={voterName}
-                    onChange={(e) => setVoterName(e.target.value)}
-                    placeholder="Ievadi savu vārdu"
-                  />
+        root.innerHTML = `
+          <div class="container">
+            <div class="header">
+              <div class="title-wrapper">
+                <span style="font-size: 48px;">🎵</span>
+                <h1>Dīvanova 2026</h1>
+                <span style="font-size: 48px;">🎤</span>
+              </div>
+              <div class="subtitle">Izvēlies savu favorītu • Novērtē katru dziesmu ar pozīciju</div>
+              <div class="stats">
+                <div class="stat-item">
+                  <span style="font-size: 20px;">👥</span>
+                  <span>${totalVoters} balsos</span>
                 </div>
-
-                <div className="song-list">
-                  {songs.map(song => {
-                    const isDuplicate = duplicatePositions.has(song.id);
-                    const selectedPosition = positions[song.id];
-                    
-                    return (
-                      <div key={song.id} className={`song-item ${isDuplicate ? 'duplicate' : ''}`}>
-                        <div className="song-info">
-                          <div className="song-name">{song.name}</div>
-                          <div className="artist-name">{song.artist}</div>
-                        </div>
-                        <div className="position-select-wrapper">
-                          <button
-                            className={`position-button ${selectedPosition ? 'selected' : ''} ${isDuplicate ? 'duplicate' : ''}`}
-                            onClick={() => {
-                              const select = document.getElementById(`select-${song.id}`);
-                              select.click();
-                            }}
-                          >
-                            {selectedPosition ? `${selectedPosition}. vieta` : 'Izvēlies pozīciju'}
-                          </button>
-                          <select
-                            id={`select-${song.id}`}
-                            value={selectedPosition || ''}
-                            onChange={(e) => handlePositionChange(song.id, e.target.value)}
-                          >
-                            <option value="">-</option>
-                            {[...Array(10)].map((_, i) => (
-                              <option key={i + 1} value={i + 1}>
-                                {i + 1}. vieta
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-                    );
-                  })}
+                <div class="stat-item">
+                  <span style="font-size: 20px;">📊</span>
+                  <span>Tiešraides rezultāti</span>
                 </div>
-
-                <button
-                  onClick={submitVotes}
-                  className="submit-button"
-                  disabled={!voterName.trim() || songs.some(s => !positions[s.id])}
-                >
-                  Iesniegt visas balsis
-                </button>
               </div>
-            ) : (
-              <div className="success-message">
-                <div className="success-emoji">
-                  <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f389/512.gif" alt="🎉" width="80" height="80" />
-                </div>
-                <h3 className="success-title">Paldies, {voterName}!</h3>
-                <p className="success-text">Tavas balsis ir veiksmīgi reģistrētas.</p>
-                <button
-                  onClick={() => {
-                    setHasVoted(false);
-                    setVoterName('');
-                    setPositions({});
-                  }}
-                  className="reset-button"
-                >
-                  Balsot vēlreiz (ar citu vārdu)
-                </button>
-              </div>
-            )}
-          </div>
-
-          <div className="card">
-            <div className="card-header">
-              <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4ca/512.gif" alt="📊" width="24" height="24" />
-              <h2 className="card-title">Tiešraides rezultāti</h2>
             </div>
 
-            {totalVoters === 0 ? (
-              <div className="empty-state">
-                <div className="empty-emoji">
-                  <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f914/512.gif" alt="🤔" width="64" height="64" />
+            ${this.currentView === 'voting' ? `
+              <div class="card">
+                <div class="card-header">
+                  <span style="font-size: 24px;">⭐</span>
+                  <h2 class="card-title">Nodod savu balsi</h2>
                 </div>
-                <p style={{ fontSize: '16px', marginBottom: '8px', fontWeight: 600 }}>Vēl nav balsu!</p>
-                <p style={{ fontSize: '14px' }}>Esi pirmais, kas balso</p>
-              </div>
-            ) : (
-              <div>
-                {rankings.map((song, index) => {
-                  const rankClass = index === 0 ? 'top-1' : index === 1 ? 'top-2' : index === 2 ? 'top-3' : '';
-                  const isExpanded = expandedRanks.has(song.id);
-                  
-                  return (
-                    <div key={song.id} className={`ranking-item ${rankClass} ${isExpanded ? 'expanded' : ''}`}>
-                      <div className="ranking-header" onClick={() => toggleExpand(song.id)}>
-                        <div className="rank-badge">{index + 1}</div>
-                        <div className="ranking-info">
-                          <div className="ranking-song">{song.name}</div>
-                          <div className="ranking-artist">{song.artist}</div>
-                        </div>
-                        <div className="ranking-score">
-                          <div className="score-value">{song.totalScore}</div>
-                          <div className="score-label">{song.voteCount} balsis</div>
-                        </div>
-                        <div className="expand-icon">
-                          {song.voteCount > 0 ? '▼' : ''}
-                        </div>
-                      </div>
+
+                <div>
+                  <div class="input-group">
+                    <label>Tavs vārds</label>
+                    <input
+                      type="text"
+                      id="voterNameInput"
+                      value="${this.voterName}"
+                      placeholder="Ievadi savu vārdu"
+                    />
+                  </div>
+
+                  <div class="song-list">
+                    ${songs.map(song => {
+                      const isDuplicate = duplicatePositions.has(song.id);
+                      const selectedPosition = this.positions[song.id];
                       
-                      {song.voteCount > 0 && (
-                        <div className="ranking-details">
-                          <div className="details-content">
-                            <div className="details-title">Detalizēti rezultāti</div>
-                            <div className="vote-list">
-                              {song.voteDetails
-                                .sort((a, b) => a.position - b.position)
-                                .map((vote, idx) => (
-                                  <div key={idx} className="vote-item">
-                                    <span className="voter-name">{vote.voterName}</span>
-                                    <span className="voter-position">{vote.position}. vieta</span>
-                                  </div>
-                                ))}
-                            </div>
+                      return `
+                        <div class="song-item ${isDuplicate ? 'duplicate' : ''}">
+                          <div class="song-info">
+                            <div class="song-name">${song.name}</div>
+                            <div class="artist-name">${song.artist}</div>
+                          </div>
+                          <div class="position-select-wrapper">
+                            <select 
+                              class="position-select ${selectedPosition ? 'selected' : ''} ${isDuplicate ? 'duplicate' : ''}"
+                              id="select-${song.id}"
+                            >
+                              <option value="">Izvēlies pozīciju</option>
+                              ${[...Array(10)].map((_, i) => `
+                                <option value="${i + 1}" ${selectedPosition === (i + 1) ? 'selected' : ''}>
+                                  ${i + 1}. vieta
+                                </option>
+                              `).join('')}
+                            </select>
                           </div>
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+                      `;
+                    }).join('')}
+                  </div>
 
-          <div className="footer">
-            Visas balsis ir redzamas visiem<br />
-            Balsošana ir anonīma
+                  <button
+                    id="submitButton"
+                    class="submit-button"
+                    ${!this.voterName.trim() || songs.some(s => !this.positions[s.id]) ? 'disabled' : ''}
+                  >
+                    Iesniegt visas balsis
+                  </button>
+                </div>
+              </div>
+            ` : `
+              <div class="card">
+                <div class="success-message">
+                  <div class="success-emoji">🎉</div>
+                  <h3 class="success-title">Paldies, ${this.voterName}!</h3>
+                  <p class="success-text">Tavas balsis ir veiksmīgi reģistrētas.</p>
+                  <button id="resetButton" class="view-results-button">
+                    Balsot vēlreiz (ar citu vārdu)
+                  </button>
+                </div>
+              </div>
+            `}
+
+            <div class="card">
+              <div class="card-header">
+                <span style="font-size: 24px;">📊</span>
+                <h2 class="card-title">Tiešraides rezultāti</h2>
+              </div>
+
+              ${totalVoters === 0 ? `
+                <div class="empty-state">
+                  <div class="empty-emoji">🤔</div>
+                  <p style="font-size: 16px; margin-bottom: 8px; font-weight: 600;">Vēl nav balsu!</p>
+                  <p style="font-size: 14px;">Esi pirmais, kas balso</p>
+                </div>
+              ` : `
+                <div>
+                  ${rankings.map((song, index) => {
+                    const rankClass = index === 0 ? 'top-1' : index === 1 ? 'top-2' : index === 2 ? 'top-3' : '';
+                    const isExpanded = this.expandedRanks.has(song.id);
+                    
+                    return `
+                      <div class="ranking-item ${rankClass} ${isExpanded ? 'expanded' : ''}" id="rank-${song.id}">
+                        <div class="ranking-header">
+                          <div class="rank-badge">${index + 1}</div>
+                          <div class="ranking-info">
+                            <div class="ranking-song">${song.name}</div>
+                            <div class="ranking-artist">${song.artist}</div>
+                          </div>
+                          <div class="ranking-score">
+                            <div class="score-value">${song.totalScore}</div>
+                            <div class="score-label">${song.voteCount} balsis</div>
+                          </div>
+                          <div class="expand-icon">
+                            ${song.voteCount > 0 ? '▼' : ''}
+                          </div>
+                        </div>
+                        
+                        ${song.voteCount > 0 ? `
+                          <div class="ranking-details">
+                            <div class="details-content">
+                              <div class="details-title">Detalizēti rezultāti</div>
+                              <div class="vote-list">
+                                ${song.voteDetails
+                                  .sort((a, b) => a.position - b.position)
+                                  .map(vote => `
+                                    <div class="vote-item">
+                                      <span class="voter-name">${vote.voterName}</span>
+                                      <span class="voter-position">${vote.position}. vieta</span>
+                                    </div>
+                                  `).join('')}
+                              </div>
+                            </div>
+                          </div>
+                        ` : ''}
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              `}
+            </div>
+
+            <div class="footer">
+              Visas balsis ir redzamas visiem<br />
+              Balsošana ir anonīma
+            </div>
           </div>
-        </div>
-      );
+        `;
+
+        this.attachEventListeners();
+      }
+
+      attachEventListeners() {
+        // Voter name input
+        const nameInput = document.getElementById('voterNameInput');
+        if (nameInput) {
+          nameInput.addEventListener('input', (e) => {
+            this.voterName = e.target.value;
+            this.render();
+          });
+        }
+
+        // Position selects
+        songs.forEach(song => {
+          const select = document.getElementById(`select-${song.id}`);
+          if (select) {
+            select.addEventListener('change', (e) => {
+              this.handlePositionChange(song.id, e.target.value);
+            });
+          }
+        });
+
+        // Submit button
+        const submitButton = document.getElementById('submitButton');
+        if (submitButton) {
+          submitButton.addEventListener('click', () => {
+            this.submitVotes();
+          });
+        }
+
+        // Reset button
+        const resetButton = document.getElementById('resetButton');
+        if (resetButton) {
+          resetButton.addEventListener('click', () => {
+            this.resetVote();
+          });
+        }
+
+        // Ranking item expand/collapse
+        const rankings = this.calculateRankings();
+        rankings.forEach(song => {
+          const rankItem = document.getElementById(`rank-${song.id}`);
+          if (rankItem && song.voteCount > 0) {
+            const header = rankItem.querySelector('.ranking-header');
+            header.addEventListener('click', () => {
+              this.toggleExpand(song.id);
+            });
+          }
+        });
+      }
     }
 
-    ReactDOM.render(<App />, document.getElementById('root'));
+    // Initialize app when DOM is ready
+    document.addEventListener('DOMContentLoaded', () => {
+      new App();
+    });
   </script>
 </body>
 </html>
